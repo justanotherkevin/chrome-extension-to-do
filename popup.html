@@ -7,6 +7,15 @@
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
     crossorigin="anonymous" />
   <style>
+      html {
+        background: #ddd;
+        height: 100%;
+        display: flex;
+      }
+      body {
+        width: 400px;
+        margin: auto;
+      }
     .todo-list {
         background: #fff;
         font-size: 20px;
@@ -170,18 +179,6 @@
         padding: 10px;
         background: transparent;
       }
-
-      html {
-        background: #ddd;
-      }
-      html {
-        height: 100%;
-        display: flex;
-      }
-      body {
-        width: 100%;
-        margin: auto;
-      }
     </style>
   
 </head>
@@ -215,7 +212,7 @@
   </div>
   <div id="todo-list" class="todo-list">
     <label class="todo" onclick="onClickFunction">
-      <input class="todo__state" type="checkbox" />
+      <input class="todo__state" type="checkbox" checked/>
 
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 25" class="todo__icon">
         <use xlink:href="#todo__line" class="todo__line"></use>
@@ -256,7 +253,7 @@
   </div>
 </body>
 <script src="popup.js"></script>
-<script>
+<!-- <script>
   // post rendered script
 
   const onFormSubmit = event => {
@@ -318,11 +315,10 @@
     }
 
     if (btnAction === 'delete-todo') {
-      event.target.parentElement.classList.add('hide');
-      setTimeout(function(){ event.target.parentElement.remove() }, 500);
-
       // add class for animation
       // when animation finished, remove ele node
+      event.target.parentElement.classList.add('hide');
+      setTimeout(function(){ event.target.parentElement.remove() }, 500);
     }
   };
 
@@ -332,6 +328,6 @@
   todoList.addEventListener('click', onClickFunction);
   inputFormSubmit.addEventListener('submit', onFormSubmit);
   btnAdd.addEventListener('click', onClickFunction);
-</script>
+</script> -->
 
 </html>
