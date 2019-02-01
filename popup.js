@@ -1,5 +1,5 @@
 console.clear();
-const appName = 'daily-goals';
+
 class Task {
   constructor(desc, fin = false) {
     this.desc = desc;
@@ -34,9 +34,11 @@ const createTodoEle = obj => {
         <use xlink:href="#todo__box" class="todo__box"></use>
         <use xlink:href="#todo__check" class="todo__check"></use>
         <use xlink:href="#todo__circle" class="todo__circle"></use>
+        <use xlink:href="#close__circle" class="close__circle"></use>
       </svg>
       <div class="todo__text">${obj.desc}</div>
-      <button class="todo__close" action="delete-todo">x</button>
+      <button class="todo__close" action="delete-todo">x
+      </button>
   `;
   return todo;
 };
@@ -56,6 +58,9 @@ const setCloseBtnStatus = (htmlAry, status) => {
   for (let i = 0; i < htmlAry.length; i++) {
     htmlAry[i].disabled = status;
   }
+};
+const updateBadgeText = num => {
+  chrome.browserAction.setBadgeText({ text: num });
 };
 const onClickFunction = event => {
   const { target } = event;
@@ -79,7 +84,9 @@ const onClickFunction = event => {
       // update data to localstorage
       // remove clicked todo ele
       store.daily = store.daily.filter(todo => todo.id != todoId);
+      numUnfinTask = store.daily.length;
       updateLocalStorage(store);
+      updateBadgeText(numUnfinTask);
       target.parentElement.remove();
       setCloseBtnStatus(btnToClose, false);
     }, 550);
@@ -105,11 +112,15 @@ const onFormSubmit = event => {
   const newTask = new Task(inputVal);
   const storeCopy = { ...store };
   storeCopy.daily.push(newTask);
+  numUnfinTask = storeCopy.daily.length;
+  updateBadgeText(numUnfinTask);
   updateLocalStorage(storeCopy);
   appendEleToTodoListEle(createTodoEle(new Task(inputVal)));
 };
 
-// DOM elements
+// DOM elements && constants
+const appName = 'daily-goals';
+let numUnfinTask = 0;
 const btnToClose = document.getElementsByClassName('todo__close');
 const todoList = document.getElementById('todo-list');
 const todos = document.getElementsByClassName('todo');
@@ -121,19 +132,37 @@ const inputFormSubmit = document.querySelector('.input-form');
 // data is stored in local storage
 if (store) {
   // when there are stored data
+  const currentDate = new Date();
+  const storeDate = new Date(store.date);
+  if (storeDate.getDate() != currentDate.getDate()) {
+    // new day! set all goal to false
+    for (let task of store.daily) {
+      task.fin = false;
+      numUnfinTask++;
+    }
+    store.date = currentDate;
+    updateLocalStorage(store);
+  }
+  updateBadgeText(numUnfinTask);
+  // inset data to UI
   dataIntoTodoList(store.daily);
 } else {
   // no stored data; test
   let data = {
     daily: [
-      new Task('Test task', true),
+      new Task('Example task', true),
       new Task('do stuff'),
       new Task('do stuff'),
     ],
+    date: new Date(),
   };
-  localStorage.setItem(appName, JSON.stringify(data));
+  debugger;
+  updateLocalStorage(data);
+  dataIntoTodoList(store.daily);
 }
 
 // event listeners
 todoList.addEventListener('click', onClickFunction);
 inputFormSubmit.addEventListener('submit', onFormSubmit);
+
+// check date
