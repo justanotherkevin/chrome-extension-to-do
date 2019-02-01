@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <title>Daily todo list</title>
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css" />
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
-    crossorigin="anonymous" />
-  <style>
+  <head>
+    <title>Daily todo list</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+      crossorigin="anonymous"
+    />
+    <style>
       html {
         background: #ddd;
         height: 100%;
@@ -16,7 +23,7 @@
         width: 400px;
         margin: auto;
       }
-    .todo-list {
+      .todo-list {
         background: #fff;
         font-size: 20px;
         max-width: 15em;
@@ -176,84 +183,64 @@
         width: 100%;
         font-size: 30px;
         text-align: center;
-        padding: 10px;
+        padding: 0;
         background: transparent;
       }
     </style>
-  
-</head>
+  </head>
 
-<body>
-  <svg viewBox="0 0 0 0" style="position: absolute; z-index: -1; opacity: 0;">
-    <defs>
-      <linearGradient id="boxGradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="25" y2="25">
-        <stop offset="0%" stop-color="#27FDC7" />
-        <stop offset="100%" stop-color="#0FC0F5" />
-      </linearGradient>
+  <body>
+    <svg viewBox="0 0 0 0" style="position: absolute; z-index: -1; opacity: 0;">
+      <defs>
+        <linearGradient
+          id="boxGradient"
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          y1="0"
+          x2="25"
+          y2="25"
+        >
+          <stop offset="0%" stop-color="#27FDC7" />
+          <stop offset="100%" stop-color="#0FC0F5" />
+        </linearGradient>
 
-      <linearGradient id="lineGradient">
-        <stop offset="0%" stop-color="#0FC0F5" />
-        <stop offset="100%" stop-color="#27FDC7" />
-      </linearGradient>
+        <linearGradient id="lineGradient">
+          <stop offset="0%" stop-color="#0FC0F5" />
+          <stop offset="100%" stop-color="#27FDC7" />
+        </linearGradient>
 
-      <path id="todo__line" stroke="url(#lineGradient)" d="M21 12.3h168v0.1z"></path>
-      <path id="todo__box" stroke="url(#boxGradient)" d="M21 12.7v5c0 1.3-1 2.3-2.3 2.3H8.3C7 20 6 19 6 17.7V7.3C6 6 7 5 8.3 5h10.4C20 5 21 6 21 7.3v5.4"></path>
-      <path id="todo__check" stroke="url(#boxGradient)" d="M10 13l2 2 5-5"></path>
-      <circle id="todo__circle" cx="13.5" cy="12.5" r="10"></circle>
-    </defs>
-  </svg>
-  <div class="todo-list-input">
-    <form class="input-form">
-      <input name="form-input" type="text" value="" placeholder="Add new todo" />
-    </form>
-    <!-- <label class="to-do-input">
-        <input type="text" /> <button action="add-to-do">Add</button>
-      </label> -->
-  </div>
-  <div id="todo-list" class="todo-list">
-    <label class="todo" onclick="onClickFunction">
-      <input class="todo__state" type="checkbox" checked/>
-
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 25" class="todo__icon">
-        <use xlink:href="#todo__line" class="todo__line"></use>
-        <use xlink:href="#todo__box" class="todo__box"></use>
-        <use xlink:href="#todo__check" class="todo__check"></use>
-        <use xlink:href="#todo__circle" class="todo__circle"></use>
-      </svg>
-
-      <div class="todo__text">Do a very important task</div>
-      <span class="todo__close" action="delete-todo">❌</span>
-    </label>
-
-    <label class="todo">
-      <input class="todo__state" type="checkbox" />
-
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 25" class="todo__icon">
-        <use xlink:href="#todo__line" class="todo__line"></use>
-        <use xlink:href="#todo__box" class="todo__box"></use>
-        <use xlink:href="#todo__check" class="todo__check"></use>
-        <use xlink:href="#todo__circle" class="todo__circle"></use>
-      </svg>
-
-      <div class="todo__text">Another important task {data.daily[0]}</div>
-    </label>
-
-    <label class="todo">
-      <input class="todo__state" type="checkbox" />
-
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 25" class="todo__icon">
-        <use xlink:href="#todo__line" class="todo__line"></use>
-        <use xlink:href="#todo__box" class="todo__box"></use>
-        <use xlink:href="#todo__check" class="todo__check"></use>
-        <use xlink:href="#todo__circle" class="todo__circle"></use>
-      </svg>
-
-      <div class="todo__text">Not so important task</div>
-    </label>
-  </div>
-</body>
-<script src="popup.js"></script>
-<!-- <script>
+        <path
+          id="todo__line"
+          stroke="url(#lineGradient)"
+          d="M21 12.3h168v0.1z"
+        ></path>
+        <path
+          id="todo__box"
+          stroke="url(#boxGradient)"
+          d="M21 12.7v5c0 1.3-1 2.3-2.3 2.3H8.3C7 20 6 19 6 17.7V7.3C6 6 7 5 8.3 5h10.4C20 5 21 6 21 7.3v5.4"
+        ></path>
+        <path
+          id="todo__check"
+          stroke="url(#boxGradient)"
+          d="M10 13l2 2 5-5"
+        ></path>
+        <circle id="todo__circle" cx="13.5" cy="12.5" r="10"></circle>
+      </defs>
+    </svg>
+    <div class="todo-list-input">
+      <form class="input-form">
+        <input
+          name="form-input"
+          type="text"
+          value=""
+          placeholder="Add new todo"
+        />
+      </form>
+    </div>
+    <div id="todo-list" class="todo-list"></div>
+  </body>
+  <script src="popup.js"></script>
+  <!-- <script>
   // post rendered script
 
   const onFormSubmit = event => {
@@ -329,5 +316,4 @@
   inputFormSubmit.addEventListener('submit', onFormSubmit);
   btnAdd.addEventListener('click', onClickFunction);
 </script> -->
-
 </html>

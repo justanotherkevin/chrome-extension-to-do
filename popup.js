@@ -1,5 +1,5 @@
 console.clear();
-const appName = 'daily-goal';
+const appName = 'daily-goals';
 class Task {
   constructor(desc, fin = false) {
     this.desc = desc;
@@ -21,7 +21,9 @@ const createTodoEle = obj => {
   todo.classList.add('todo');
   todo.setAttributeNode(att);
   todo.innerHTML = `
-      <input class="todo__state" type="checkbox" ${obj.fin ? 'checked' : ''}/>
+      <input class="todo__state" type="checkbox" action="check-box" ${
+        obj.fin ? 'checked' : ''
+      }/>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -34,7 +36,7 @@ const createTodoEle = obj => {
         <use xlink:href="#todo__circle" class="todo__circle"></use>
       </svg>
       <div class="todo__text">${obj.desc}</div>
-      <span class="todo__close" action="delete-todo">x</span>
+      <button class="todo__close" action="delete-todo">x</button>
   `;
   return todo;
 };
@@ -50,48 +52,71 @@ const dataIntoTodoList = tasks => {
 const updateLocalStorage = obj => {
   localStorage.setItem(appName, JSON.stringify(obj));
 };
+const setCloseBtnStatus = (htmlAry, status) => {
+  for (let i = 0; i < htmlAry.length; i++) {
+    htmlAry[i].disabled = status;
+  }
+};
 const onClickFunction = event => {
   const { target } = event;
+  const btnDisable = target.disabled ? true : false;
   const btnAction = target.attributes.action
     ? target.attributes.action.value
     : null;
-  const todoId = target.parentElement.attributes.key.value;
+  const todoId = target.parentElement.attributes.key
+    ? target.parentElement.attributes.key.value
+    : null;
   // if (btnAction === 'add-to-do') {
   //   addToDo();
   // }
-
-  if (btnAction === 'delete-todo') {
+  if (btnAction === 'delete-todo' && btnDisable === false) {
     // add class for animation
     // when animation finished, remove ele node
+    setCloseBtnStatus(btnToClose, true);
     target.parentElement.classList.add('hide');
     setTimeout(function() {
       // edit data,
       // update data to localstorage
       // remove clicked todo ele
-      let storeCopy = { ...store };
-      storeCopy.daily = storeCopy.daily.filter(todo => todo.id != todoId);
-      updateLocalStorage(storeCopy);
+      store.daily = store.daily.filter(todo => todo.id != todoId);
+      updateLocalStorage(store);
       target.parentElement.remove();
-    }, 500);
-  } else {
+      setCloseBtnStatus(btnToClose, false);
+    }, 550);
+  }
+  if (btnAction === 'check-box') {
     // clicked anywhere other than the delete btn
     // update localstorage
-    let storeCopy = { ...store };
-    storeCopy.daily.forEach(todo => {
+    store.daily.forEach(todo => {
       if (todo.id === todoId) {
         todo.fin = !todo.fin;
       }
     });
-    updateLocalStorage(storeCopy);
+    updateLocalStorage(store);
   }
+};
+const onFormSubmit = event => {
+  event.preventDefault();
+  let inputVal = event.target.elements['form-input'].value;
+  // create new task with form-input
+  // add task to data
+  // update localstorage with data
+  // add task to dom ele, todo list
+  const newTask = new Task(inputVal);
+  const storeCopy = { ...store };
+  storeCopy.daily.push(newTask);
+  updateLocalStorage(storeCopy);
+  appendEleToTodoListEle(createTodoEle(new Task(inputVal)));
 };
 
 // DOM elements
+const btnToClose = document.getElementsByClassName('todo__close');
 const todoList = document.getElementById('todo-list');
 const todos = document.getElementsByClassName('todo');
-const store = localStorage.getItem(appName)
+let store = localStorage.getItem(appName)
   ? JSON.parse(localStorage.getItem(appName))
   : null;
+const inputFormSubmit = document.querySelector('.input-form');
 
 // data is stored in local storage
 if (store) {
@@ -111,3 +136,4 @@ if (store) {
 
 // event listeners
 todoList.addEventListener('click', onClickFunction);
+inputFormSubmit.addEventListener('submit', onFormSubmit);
