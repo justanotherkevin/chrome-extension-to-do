@@ -8,7 +8,6 @@ class Task {
       .toString(36)
       .substr(2, 16);
   }
-
   toggleFin() {
     this.fin = !this.fin;
   }
@@ -60,7 +59,9 @@ const setCloseBtnStatus = (htmlAry, status) => {
   }
 };
 const updateBadgeText = num => {
-  chrome.browserAction.setBadgeText({ text: num });
+  if (chrome.browserAction) {
+    chrome.browserAction.setBadgeText({ text: num });
+  }
 };
 const onClickFunction = event => {
   const { target } = event;
@@ -84,11 +85,11 @@ const onClickFunction = event => {
       // update data to localstorage
       // remove clicked todo ele
       store.daily = store.daily.filter(todo => todo.id != todoId);
-      numUnfinTask = store.daily.length;
-      updateLocalStorage(store);
-      updateBadgeText(numUnfinTask);
+      store.unfinishedTasks--;
+      updateBadgeText(store.unfinishedTasks);
       target.parentElement.remove();
       setCloseBtnStatus(btnToClose, false);
+      updateLocalStorage(store);
     }, 550);
   }
   if (btnAction === 'check-box') {
@@ -97,14 +98,17 @@ const onClickFunction = event => {
     store.daily.forEach(todo => {
       if (todo.id === todoId) {
         todo.fin = !todo.fin;
+        store.unfinishedTasks--;
+        updateBadgeText(store.unfinishedTasks);
+        updateLocalStorage(store);
       }
     });
-    updateLocalStorage(store);
   }
 };
 const onFormSubmit = event => {
   event.preventDefault();
   let inputVal = event.target.elements['form-input'].value;
+  formInput.value = '';
   // create new task with form-input
   // add task to data
   // update localstorage with data
@@ -112,15 +116,14 @@ const onFormSubmit = event => {
   const newTask = new Task(inputVal);
   const storeCopy = { ...store };
   storeCopy.daily.push(newTask);
-  numUnfinTask = storeCopy.daily.length;
-  updateBadgeText(numUnfinTask);
+  store.unfinishedTasks++;
+  updateBadgeText(store.unfinishedTasks);
   updateLocalStorage(storeCopy);
   appendEleToTodoListEle(createTodoEle(new Task(inputVal)));
 };
 
 // DOM elements && constants
 const appName = 'daily-goals';
-let numUnfinTask = 0;
 const btnToClose = document.getElementsByClassName('todo__close');
 const todoList = document.getElementById('todo-list');
 const todos = document.getElementsByClassName('todo');
@@ -128,6 +131,7 @@ let store = localStorage.getItem(appName)
   ? JSON.parse(localStorage.getItem(appName))
   : null;
 const inputFormSubmit = document.querySelector('.input-form');
+const formInput = document.querySelector('.input-form input');
 
 // data is stored in local storage
 if (store) {
@@ -138,12 +142,15 @@ if (store) {
     // new day! set all goal to false
     for (let task of store.daily) {
       task.fin = false;
-      numUnfinTask++;
     }
     store.date = currentDate;
     updateLocalStorage(store);
   }
-  updateBadgeText(numUnfinTask);
+  let aryNotFin = store.daily.filter(task => {
+    task.fin === false;
+  });
+  store.unfinishedTasks = aryNotFin.length;
+  updateBadgeText(store.unfinishedTasks);
   // inset data to UI
   dataIntoTodoList(store.daily);
 } else {
@@ -155,14 +162,16 @@ if (store) {
       new Task('do stuff'),
     ],
     date: new Date(),
+    unfinishedTasks: 0,
   };
-  debugger;
-  updateLocalStorage(data);
+  let aryNotFin = data.daily.filter(task => {
+    task.fin === false;
+  });
+  data.unfinishedTasks = numUnfinTask = aryNotFin.length;
+  updateBadgeText(data.unfinishedTasks);
   dataIntoTodoList(store.daily);
 }
 
 // event listeners
 todoList.addEventListener('click', onClickFunction);
 inputFormSubmit.addEventListener('submit', onFormSubmit);
-
-// check date
