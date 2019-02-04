@@ -51,16 +51,24 @@ const dataIntoTodoList = tasks => {
   });
 };
 const updateLocalStorage = obj => {
-  localStorage.setItem(appName, JSON.stringify(obj));
+  // localStorage.setItem(appName, JSON.stringify(obj));
+  let date = obj.date.toString();
+  obj.date = date;
+  chrome.storage.sync.set({ [appName]: obj }, res => {
+    // console.log('set data with updateLocalStorage');
+  });
 };
 const setCloseBtnStatus = (htmlAry, status) => {
   for (let i = 0; i < htmlAry.length; i++) {
     htmlAry[i].disabled = status;
   }
 };
-const updateBadgeText = num => {
+const updateBadgeText = obj => {
+  let store = obj;
+  let aryNotFin = store.daily.filter(task => task.fin === false);
+  store.unfinishedTasks = aryNotFin.length;
   if (chrome.browserAction) {
-    chrome.browserAction.setBadgeText({ text: num });
+    chrome.browserAction.setBadgeText({ text: aryNotFin.length.toString() });
   }
 };
 const onClickFunction = event => {
@@ -86,7 +94,7 @@ const onClickFunction = event => {
       // remove clicked todo ele
       store.daily = store.daily.filter(todo => todo.id != todoId);
       store.unfinishedTasks--;
-      updateBadgeText(store.unfinishedTasks);
+      updateBadgeText(store);
       target.parentElement.remove();
       setCloseBtnStatus(btnToClose, false);
       updateLocalStorage(store);
@@ -98,8 +106,8 @@ const onClickFunction = event => {
     store.daily.forEach(todo => {
       if (todo.id === todoId) {
         todo.fin = !todo.fin;
-        store.unfinishedTasks--;
-        updateBadgeText(store.unfinishedTasks);
+        // store.unfinishedTasks--;
+        updateBadgeText(store);
         updateLocalStorage(store);
       }
     });
@@ -117,7 +125,7 @@ const onFormSubmit = event => {
   const storeCopy = { ...store };
   storeCopy.daily.push(newTask);
   store.unfinishedTasks++;
-  updateBadgeText(store.unfinishedTasks);
+  updateBadgeText(store);
   updateLocalStorage(storeCopy);
   appendEleToTodoListEle(createTodoEle(new Task(inputVal)));
 };
@@ -127,49 +135,48 @@ const appName = 'daily-goals';
 const btnToClose = document.getElementsByClassName('todo__close');
 const todoList = document.getElementById('todo-list');
 const todos = document.getElementsByClassName('todo');
-let store = localStorage.getItem(appName)
-  ? JSON.parse(localStorage.getItem(appName))
-  : null;
+let store;
+chrome.storage.sync.get([appName], function(res) {
+  store = res[appName] ? res[appName] : null;
+  init();
+});
+
 const inputFormSubmit = document.querySelector('.input-form');
 const formInput = document.querySelector('.input-form input');
 
-// data is stored in local storage
-if (store) {
-  // when there are stored data
-  const currentDate = new Date();
-  const storeDate = new Date(store.date);
-  if (storeDate.getDate() != currentDate.getDate()) {
-    // new day! set all goal to false
-    for (let task of store.daily) {
-      task.fin = false;
+function init() {
+  // data is stored in local storage
+  if (store) {
+    // when there are stored data
+    store.date = new Date(store.date);
+    const currentDate = new Date();
+    const storeDate = store.date;
+    if (storeDate.getDate() != currentDate.getDate()) {
+      // new day! set all goal to false
+      for (let task of store.daily) {
+        task.fin = false;
+      }
+      store.date = currentDate;
+      updateLocalStorage(store);
     }
-    store.date = currentDate;
-    updateLocalStorage(store);
+    updateBadgeText(store);
+    // inset data to UI
+    dataIntoTodoList(store.daily);
+  } else {
+    // no stored data; test
+    let data = {
+      daily: [
+        new Task('Example task', true),
+        new Task('do stuff'),
+        new Task('do stuff'),
+      ],
+      date: new Date(),
+      unfinishedTasks: 0,
+    };
+    updateLocalStorage(data);
+    updateBadgeText(data);
+    dataIntoTodoList(data.daily);
   }
-  let aryNotFin = store.daily.filter(task => {
-    task.fin === false;
-  });
-  store.unfinishedTasks = aryNotFin.length;
-  updateBadgeText(store.unfinishedTasks);
-  // inset data to UI
-  dataIntoTodoList(store.daily);
-} else {
-  // no stored data; test
-  let data = {
-    daily: [
-      new Task('Example task', true),
-      new Task('do stuff'),
-      new Task('do stuff'),
-    ],
-    date: new Date(),
-    unfinishedTasks: 0,
-  };
-  let aryNotFin = data.daily.filter(task => {
-    task.fin === false;
-  });
-  data.unfinishedTasks = numUnfinTask = aryNotFin.length;
-  updateBadgeText(data.unfinishedTasks);
-  dataIntoTodoList(store.daily);
 }
 
 // event listeners
